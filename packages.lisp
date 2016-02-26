@@ -28,7 +28,10 @@
    #:take-while
    #:drop
    #:drop-while
+   #:seq-elt
+   #:chunk-seq
    #:lazy-cat
+   #:cycle
    #:iterate
    #:repeatedly
    #:repeat
