@@ -124,14 +124,14 @@ satisfying the predicate PRED."
 (defun drop (n s)
   "Drops the first N elements of sequence S."
   (declare (type fixnum n))
-  (loop repeat n
+  (loop repeat (1+ n)
      for cell = s then (tail cell)
      when (not cell) do (return cell)
      finally (return cell)))
 
 (example
  (take 5 (drop 10000 (nats 1)))
- => '(10000 10001 10002 10003 10004))
+ => '(10001 10002 10003 10004 10005))
 
 (defun drop-while (pred s)
   "Drops the prefix elements of sequence S while
@@ -146,5 +146,14 @@ they satisfy predicate PRED."
 (example
  (take 5 (drop-while (lambda (x) (< x 10)) (nats 1)))
  => '(10 11 12 13 14))
+
+(defun seq-elt (s n)
+  "Returns the N-th element of sequence S."
+  (head (drop (1- n) s)))
+
+(example
+ (seq-elt (range 1) 30) => 30)
+
+
 
 
