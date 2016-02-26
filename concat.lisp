@@ -42,5 +42,8 @@ The LEFT slot is the first sequence of the concat, and RIGHT is
 
 
 
-
+(defun cycle (s)
+  "Produces a lazy infinite sequence consisting
+in the repetition of the elements of sequence S."
+  (lazy-cat s (lazy-seq (cycle s))))
 
