@@ -25,11 +25,18 @@
    #:print-cell
    #:lazy-seq
    #:take
+   #:take-while
    #:drop
+   #:drop-while
+   #:lazy-cat
    #:iterate
    #:repeatedly
    #:repeat
    #:range
+   #:maps
+   #:filters
+   #:reduces
+   #:reductions
    ))
 
 

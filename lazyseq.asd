@@ -10,8 +10,9 @@
   :components ((:file "packages")
                (:file "utils")
                (:file "lazyseq")
-	       (:file "produce")
-	       (:file "xform")
-	       (:file "reduce")
-	       ))
+               (:file "concat")
+               (:file "produce")
+               (:file "xform")
+               (:file "reduce")
+               ))
 

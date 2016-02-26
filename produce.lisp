@@ -8,7 +8,6 @@
 (example
  (take 5 (iterate #'1+ 1)) => '(1 2 3 4 5))
 
-
 (defun repeat (x)
   "Generate the lazy sequence: X X X ..."
   (lazy-seq (cons x (repeat x))))

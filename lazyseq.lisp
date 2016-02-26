@@ -21,9 +21,9 @@
 (defmethod print-cell ((c list) out)
   (when c
     (format out "~A" (first c))
-    (when (rest l)
+    (when (rest c)
       (format out " ")
-      (print-cell (rest l) out))))
+      (print-cell (rest c) out))))
 
 (defstruct lazy-cell
   "The cell representation of lazy sequences.
@@ -102,8 +102,24 @@ An exemple of usage is as follows:
      for cell = s then (tail cell)
      when cell collect (head cell)))
 
-
 (example (take 5 (nats 1)) => '(1 2 3 4 5))
+
+(defun take-while (pred s)
+  "Returns the list of the prefix elements of sequence S
+satisfying the predicate PRED."
+  (loop
+     for cell = s then (tail cell)
+     for hd = (head cell)
+     when (or (not cell)
+              (not (funcall pred hd)))
+     do (return prefix)
+     collecting hd into prefix
+     finally (return prefix)))
+
+(example
+ (take-while (lambda (x) (< x 10)) (nats 1))
+ => '(1 2 3 4 5 6 7 8 9))
+
 
 (defun drop (n s)
   "Drops the first N elements of sequence S."
@@ -117,5 +133,18 @@ An exemple of usage is as follows:
  (take 5 (drop 10000 (nats 1)))
  => '(10000 10001 10002 10003 10004))
 
+(defun drop-while (pred s)
+  "Drops the prefix elements of sequence S while
+they satisfy predicate PRED."
+  (loop
+     for cell = s then (tail cell)
+     when (or (not cell)
+              (not (funcall pred (head cell))))
+       do (return cell)
+     finally (return cell)))
 
-  
+(example
+ (take 5 (drop-while (lambda (x) (< x 10)) (nats 1)))
+ => '(10 11 12 13 14))
+
+
