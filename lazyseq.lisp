@@ -1,8 +1,6 @@
 
 (in-package #:lazyseq)
 
-(declaim (optimize (speed 3) (safety 0) (debug 0)))
-
 (defgeneric head (sequence)
   (:documentation "Taking the head of SEQUENCE."))
 
@@ -152,7 +150,7 @@ they satisfy predicate PRED."
   (head (drop (1- n) s)))
 
 (example
- (seq-elt (range 1) 30) => 30)
+ (seq-elt (nats 1) 30) => 30)
 
 
 
