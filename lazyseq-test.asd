@@ -1,4 +1,4 @@
-(defsystem lazyseq-test
+(defsystem :lazyseq-test
   :name "lazyseq-test"
   :author "Frederic Peschanski"
   :license "MIT License. See LICENSE"

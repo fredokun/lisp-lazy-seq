@@ -1,5 +1,5 @@
 
-(asdf:defsystem #:lazyseq
+(asdf:defsystem :lazyseq
   :description "A library for lazy sequences."
   :version "0.1"
   :author "Frederic Peschanski (format nil \"<frederic~Apeschanski~Awork~Agmail~Acom>\" \".\" \".\" \"@\" \".\")" 
@@ -18,8 +18,9 @@
                (:file "reduce")
                ))
 
-(defmethod perform ((o asdf:test-op) (c (eql (find-system #:lazyseq))))
+(defmethod perform ((o asdf:test-op) (c (eql (find-system :lazyseq))))
+  (load-system 'lazyseq-test)
   (let ((suites '(basic)))
     (dolist (suite suites)
-      (funcall (intern "RUN!" #:5am)
-               (intern (symbol-name suite) #:lazyseq-test)))))
+      (funcall (intern "RUN!" :5am)
+               (intern (symbol-name suite) :lazyseq-test)))))
