@@ -38,6 +38,7 @@
    #:range
    #:maps
    #:filters
+   ;; reductions
    #:reduces
    #:reductions
    #:flush-seq
@@ -45,6 +46,9 @@
    char-seq
    string-char-seq
    file-char-seq
+   line-seq
+   string-line-seq
+   file-line-seq
    ))
 
 
