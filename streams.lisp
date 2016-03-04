@@ -137,7 +137,6 @@ sequence is fully computed. Use FLUSH-SEQ to force the closing operation."
 ;;; Line streams
 ;;; ===================
 
-
 (defclass line-stream-cell (stream-cell)
   ((hd :initarg :hd)
    (tl :initform nil))
@@ -257,10 +256,89 @@ sequence is fully computed. Use FLUSH-SEQ to force the closing operation."
  (take 4 (file-line-seq (truename "./streams.lisp"))) ;; use *load-truename* instead
  => '("" "(in-package #:lazyseq)" "" "(defclass stream-cell ()"))
 
+;;; ===================
+;;; Byte streams
+;;; ===================
+
 (defclass byte-stream-cell (stream-cell)
-  ((hd :initform nil)
+  ((hd :initarg :hd)
    (tl :initform nil))
   (:documentation "A stream cell for byte inputs."))
+
+(defun compute-byte-stream (c)
+  "Compute the byte stream by performing a single read.
+Returns NIL if the stream is at the end. Conditions
+are simply propagated.
+
+CAUTION: the stream must be non-NIL when calling
+this function.
+
+If the AUTOCLOSE flag is non-NIL, then the stream is
+automagically closed when reaching the EOF."
+
+  (with-slots (stream autoclose hd tl) c
+    (let  ((b (read-byte stream nil :at-eof)))
+      (if (eql b :at-eof)
+          (progn (when autoclose
+                   (close stream))
+                 (setf stream nil)
+                 nil)
+          ;; not at eof
+          (progn (setf tl (make-instance 'byte-stream-cell :stream stream :autoclose autoclose :hd b))
+                 (setf stream nil)
+                 c)))))
+
+(defmethod head ((c byte-stream-cell))
+  (slot-value c 'hd))
+
+(defmethod tail ((c byte-stream-cell))
+  (if (slot-value c 'stream)
+      (if (compute-byte-stream c)
+          (slot-value c 'tl)
+          nil)
+      (slot-value c 'tl)))
+
+(defun byte-seq (in-stream &key (autoclose nil))
+  "Generates a lazy sequence of bytes from an INPUT-STREAM.
+Note that the stream must be such that bytes can be fetched
+ using READ-BYTE.
+
+Because of EOF detection, there is always one byte read in advance
+ from the stream.
+
+If the AUTOCLOSE flag is set, then the stream will be automagically
+ closed when reaching the EOF. This may be dangerous (if the stream
+ is shared) but is otherwise practical when working at the REPL.
+
+Also note that the stream is only closed when reaching the EOF.
+Use FLUSH-SEQ for forcing the close operation."
+
+  (let ((b (read-byte in-stream nil :at-eof)))
+    (if (eql b :at-eof)
+        (progn (when autoclose
+                 (close in-stream))
+               nil)
+        ;; not at eof
+        (make-instance 'byte-stream-cell :stream in-stream :autoclose autoclose :hd b))))
+
+(defun file-byte-seq (in-file &key (if-does-not-exist :error))
+  "Generates a lazy sequence of bytes from an IN-FILE.
+
+The function is a simple wrapper around OPEN for opening file
+ as binary input. The :IF-DOES-NOT-EXIST keyword argument
+ works accordingly.
+
+CAUTION: the underlying stream will only be closed if the
+sequence is fully computed. Use FLUSH-SEQ to force the closing operation."
+
+  (let ((in-stream (open in-file
+                         :element-type 'unsigned-byte
+                         :if-does-not-exist if-does-not-exist)))
+    (byte-seq in-stream :autoclose t)))
+
+(example
+ (take 4 (file-byte-seq (truename "./streams.lisp"))) ;; use *load-truename* instead
+ => '(10 40 105 110))
 
 
 (defclass sequence-stream-cell (stream-cell)
