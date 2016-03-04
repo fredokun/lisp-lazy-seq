@@ -40,6 +40,11 @@
    #:filters
    #:reduces
    #:reductions
+   #:flush-seq
+   ;; streams
+   char-seq
+   string-char-seq
+   file-char-seq
    ))
 
 

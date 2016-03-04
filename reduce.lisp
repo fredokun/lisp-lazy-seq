@@ -22,7 +22,16 @@
  => '(0 1 3 6 10 15))
 
 
-  
+(defun flush-seq (s)
+  "Flushes the sequences S so that it is completely
+computed. Returns T if some computation was perfomed,
+ otherwise NIL.
 
-  
+CAUTION: similarly to reductions FLUSH-SEQ should not
+be applied on infinite sequences."
+  (if s
+      (loop
+         for cell = s then (tail cell)
+         when (not cell) do (return nil))
+      nil))
 
