@@ -6,6 +6,7 @@
 (ql:quickload "lazyseq")
 
 ;; you can also do some testing
+(ql:quickload "lazyseq-test")
 (require 'asdf)
 (asdf:test-system :lazyseq)
 
