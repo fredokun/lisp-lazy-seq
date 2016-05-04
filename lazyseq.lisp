@@ -17,11 +17,7 @@
   (:documentation "Priting cell C to OUT."))
 
 (defmethod print-cell ((c list) out)
-  (when c
-    (format out "~A" (first c))
-    (when (rest c)
-      (format out " ")
-      (print-cell (rest c) out))))
+  (format out "~{~a~^ ~}" c))
 
 (defstruct lazy-cell
   "The cell representation of lazy sequences.
@@ -61,12 +57,14 @@ in a non-computed state (i.e. GENFN must be non-NIL.
   (lazy-cell-tl c))
 
 (defmethod print-cell ((c lazy-cell) out)
-  (if (lazy-cell-genfn c)
-      (format out "?")
-      (progn (format out "~A" (lazy-cell-hd c))
-	     (when (lazy-cell-tl c)
-	       (format out " ")
-	       (print-cell (lazy-cell-tl c) out)))))
+  (let ((cell (loop :for cell = c :then (lazy-cell-tl cell)
+                 :for sep = "" :then " "
+                 :while (and cell (null (lazy-cell-genfn cell)))
+                 :do (progn (format out sep)
+                            (format out "~A" (lazy-cell-hd cell)))
+                 :finally (return cell))))
+    (if (and cell (lazy-cell-genfn cell))
+        (format out "..."))))
 
 (defmethod print-object ((c lazy-cell) out)
   (format out "#<lazy:") (print-cell c out) (format out ">"))
