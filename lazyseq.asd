@@ -16,6 +16,7 @@
                (:file "produce")
                (:file "xform")
                (:file "reduce")
+               (:file "lazylist")
                ))
 
 (defmethod perform ((o asdf:test-op) (c (eql (find-system :lazyseq))))

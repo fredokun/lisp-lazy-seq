@@ -42,6 +42,13 @@
    #:reduces
    #:reductions
    #:flush-seq
+   ;; lists
+   #:lazy-list
+   #:lazy-list*
+   #:self-ref
+   #:alazy-list
+   #:alazy-list*
+   #:lazy-labels
    ;; streams
    char-seq
    string-char-seq
