@@ -86,6 +86,17 @@
  (take 5 (filters #'oddp (range)))
  => '(1 3 5 7 9))
 
+(defun scanl (f a s)
+  "Applies binary function F to A and the first element of the sequence S
+   then to this result and the second element, and so on. 
+   Returns a lazy sequence [A (F A S[0]) (F (F A S[0]) S[1]) ...]"
+  (if s
+      (lazy-seq (cons a (scanl f (funcall f a (head s)) (tail s))))
+      (list a)))
+
+(example
+ (take 10 (scanl #'+ 1 '(1 2 3)))
+ => '(1 2 4 7))
 
 
 

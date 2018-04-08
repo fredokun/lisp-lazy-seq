@@ -35,3 +35,39 @@ be applied on infinite sequences."
          when (not cell) do (return nil))
       nil))
 
+(defun any (f s)
+  "Returns T if unary function F returns true for any of sequence S.
+CAUTION: This may never return if applied to an infinite sequence"
+  (if s
+      (loop
+         for cell = s then (tail cell)
+         when (not cell) do (return nil)
+         when (funcall f (head cell)) do (return t))
+      nil))
+
+(example
+ (any #'evenp (nats 1))
+ => t)
+
+(example 
+ (any #'evenp '(1 3 5))
+ => nil)
+
+(defun all (f s)
+  "Returns T if unary function F returns true for all of sequence S.
+CAUTION: This will never return if applied to an infinite sequence"
+  (if s
+      (loop
+         for cell = s then (tail cell)
+         when (not cell) do (return t)
+         when (not (funcall f (head cell))) do (return nil))
+      nil))
+
+(example
+ (all #'evenp '(2 4 6 8))
+ => t)
+
+(example 
+ (all #'evenp '(2 4 6 8 9))
+ => nil)
+
