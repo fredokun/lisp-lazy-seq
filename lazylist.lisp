@@ -1,7 +1,11 @@
-;;;; Defines:
-;;;; lazy-list, lazy-list* -- Create lazy sequences conveniently
-;;;; self-ref, alazy-list, alazy-list* -- Self-referential lazy sequences, and anamorphic macro variants
-;;;; lazy-labels  -- Creates scope in which mutually recursive lazy sequences can be defined
+#|
+ Defines:
+
+   lazy-list, lazy-list*     Create lazy sequences conveniently
+   self-ref        Self-referential lazy sequences
+   alazy-list, alazy-list*   Anamorphic macro variants for self referencing
+   lazy-labels     Creates scope in which mutually recursive lazy sequences can be defined
+|#
 
 (in-package #:lazyseq)
 
@@ -14,8 +18,17 @@
     inner))
 
 (example
+ (take 2 (lazy-list))
+ => nil)
+
+(example
  (take 3 (lazy-list 1 2 3))
  => '(1 2 3))
+
+(example
+ (take 2 (lazy-list (+ 1 2) nil))
+ => '(3 nil))
+
 
 (defmacro lazy-list* (&rest items)
   "Construct a lazy sequence from given ITEMS.
@@ -27,6 +40,18 @@
     (dolist (it (rest items-rev))
       (setf inner `(lazy-seq (cons ,it ,inner))))
     inner))
+
+(example
+ (take 4 (lazy-list* 1 2 '(3 4)))
+ => '(1 2 3 4))
+
+(example
+ (take 4 (lazy-list* 1 2 (nats 0)))
+ => '(1 2 0 1))
+
+(example
+ (take 4 (lazy-list* 1 2 (lazy-list 3 4)))
+ => '(1 2 3 4))
 
 ;;; lazy-ref-cell structure
 
