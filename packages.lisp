@@ -38,10 +38,13 @@
    #:range
    #:maps
    #:filters
+   #:scanl
    ;; reductions
    #:reduces
    #:reductions
    #:flush-seq
+   #:any
+   #:all
    ;; streams
    char-seq
    string-char-seq
