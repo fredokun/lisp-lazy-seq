@@ -35,14 +35,23 @@
 (defmethod tail ((c array))
   "Return a flattened array, displaced to C. 
 This avoids copying data."
-  (make-array (1- (array-total-size c))
-              :displaced-to c
-              :displaced-index-offset 1
-              :element-type (array-element-type c)))
+  (multiple-value-bind (displace-to displace-index) (array-displacement c)
+    (make-array (1- (array-total-size c))
+                ;; Avoid multiple levels of displacement
+                ;; by displacing to the same array as C if C is displaced
+                :displaced-to (or displace-to c)
+                :displaced-index-offset (if displace-to
+                                            (1+ displace-index)
+                                            1)
+                :element-type (array-element-type c))))
 
 (example
  (tail "hello")
  => "ello")
+
+(example
+ (array-displacement (tail (tail "hello")))
+ => (values "hello" 2)) ; Displaced to original array
 
 (let ((*example-equal-predicate* #'equalp))
   (example
