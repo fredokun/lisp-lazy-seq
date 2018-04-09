@@ -7,16 +7,55 @@
 (defmethod head ((c list))
   (first c))
 
+(defmethod head ((c array))
+  (row-major-aref c 0))
+
+(example
+ (head '(:a :b :c))
+ => :a)
+
+(example
+ (head "hello")
+ => #\h)
+
+(example
+ (head #(1 2 3))
+ => 1)
+
+(example
+ (head #2A((4 3) (2 1)))
+ => 4)
+
 (defgeneric tail (sequence)
   (:documentation "Taking the tail of SEQUENCE."))
 
 (defmethod tail ((c list))
   (rest c))
 
+(defmethod tail ((c array))
+  "Return a flattened array, displaced to C. 
+This avoids copying data."
+  (make-array (1- (array-total-size c))
+              :displaced-to c
+              :displaced-index-offset 1
+              :element-type (array-element-type c)))
+
+(example
+ (tail "hello")
+ => "ello")
+
+(let ((*example-equal-predicate* #'equalp))
+  (example
+   (tail #2A((4 3) (2 1)))
+   => #(3 2 1))) ; note array flattened, displaced
+
 (defgeneric print-cell (c out)
   (:documentation "Priting cell C to OUT."))
 
 (defmethod print-cell ((c list) out)
+  (format out "~{~a~^ ~}" c))
+
+(defmethod print-cell ((c array) out)
   (format out "~{~a~^ ~}" c))
 
 (defstruct lazy-cell
