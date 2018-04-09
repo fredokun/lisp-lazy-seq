@@ -38,10 +38,13 @@
    #:range
    #:maps
    #:filters
+   #:scanl
    ;; reductions
    #:reduces
    #:reductions
    #:flush-seq
+   #:any
+   #:all
    ;; lists
    #:lazy-list
    #:lazy-list*
@@ -50,12 +53,12 @@
    #:alazy-list*
    #:lazy-labels
    ;; streams
-   char-seq
-   string-char-seq
-   file-char-seq
-   line-seq
-   string-line-seq
-   file-line-seq
+   #:char-seq
+   #:string-char-seq
+   #:file-char-seq
+   #:line-seq
+   #:string-line-seq
+   #:file-line-seq
    ))
 
 
