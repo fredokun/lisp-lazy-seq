@@ -105,7 +105,8 @@
    The symbol SELF is bound to the start of the sequence, so can be
    used to define self-referential lazy sequences.
   "
-  `(self-ref self (lazy-list ,@items)))
+  (let ((self (intern (symbol-name 'self))))
+    `(self-ref ,self (lazy-list ,@items)))
 
 (defmacro alazy-list* (&rest items)
   "Anamorphic macro which creates a lazy list consisting
@@ -120,7 +121,8 @@
    (take 10 (alazy-list* 1 (maps #'1+ self)))
    => '(1 2 3 4 5 6 7 8 9 10))
   "
-  `(self-ref self (lazy-list* ,@items)))
+  (let ((self (intern (symbol-name 'self))))
+    `(self-ref ,self (lazy-list* ,@items))))
 
 (example
  (take 10 (alazy-list* 1 (maps #'1+ self)))
