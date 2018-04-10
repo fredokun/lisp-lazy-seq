@@ -105,7 +105,7 @@ Example:  The Fibonacci sequence
    used to define self-referential lazy sequences.
   "
   (let ((self (intern (symbol-name 'self)))) ; intern so that SELF does not need to be exported
-    `(self-ref ,self (lazy-list ,@items)))
+    `(self-ref ,self (lazy-list ,@items))))
 
 (defmacro alazy-list* (&rest items)
   "Anaphoric macro which creates a lazy list consisting
