@@ -17,6 +17,7 @@
                (:file "xform")
                (:file "reduce")
                (:file "lazylist")
+               (:file "lazysort")
                ))
 
 (defmethod perform ((o asdf:test-op) (c (eql (find-system :lazyseq))))
