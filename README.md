@@ -13,8 +13,33 @@ lambda closure. This is essentially the method used in Scheme streams.
 See the manual in [notebook](lisp-lazy-seq.ipynb) or
 [pdf](lisp-lazy-seq.pdf) form for details of the internals. 
 
-Standard functions for operating on lazy sequences are provided,
-including `take`, `drop` 
+Functions for creating sequences include `iterate`, `repeat`, 
+`repeatedly`, and `range`.
+
+Functions for operating on lazy sequences include `maps`, `filters`,
+`reduces`, `reductions`, `any`, `all`, `cycle`, and `lazy-cat`
+(concatenation).
+
+Functions to evaluate sequences include `take`, `take-while`, `drop`,
+and `drop-while`.
+
+## Getting it
+
+If you have Quicklisp installed then clone into your `local-projects`
+directory
+
+```bash
+$ cd ~/quicklisp/local-projects/
+$ git clone https://github.com/fredokun/lisp-lazy-seq.git 
+```
+
+then in your favourite lisp implementation
+
+```lisp
+(ql:quickload :lazyseq)
+
+(use-package :lazyseq)
+```
 
 ## Examples
 
