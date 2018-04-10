@@ -26,6 +26,7 @@
    #:lazy-seq
    #:take
    #:take-while
+   #:take-all
    #:drop
    #:drop-while
    #:seq-elt
@@ -59,6 +60,8 @@
    #:line-seq
    #:string-line-seq
    #:file-line-seq
+   ;; Sorting
+   #:lazy-sort
    ))
 
 

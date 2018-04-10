@@ -164,6 +164,15 @@ satisfying the predicate PRED."
  (take-while (lambda (x) (< x 10)) (nats 1))
  => '(1 2 3 4 5 6 7 8 9))
 
+(defun take-all (s)
+  "Returns the list of all elements of the sequence S.
+
+CAUTION: This will never return if given an infinite sequence."
+  (loop
+     for cell = s then (tail cell)
+     when (not cell) do (return result)
+     collecting (head cell) into result))
+
 
 (defun drop (n s)
   "Drops the first N elements of sequence S."
