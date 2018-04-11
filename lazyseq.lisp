@@ -59,13 +59,41 @@ This avoids copying data."
    => #(3 2 1))) ; note array flattened, displaced
 
 (defgeneric print-cell (c out)
-  (:documentation "Priting cell C to OUT."))
+  (:documentation "Printing cell C to OUT."))
 
 (defmethod print-cell ((c list) out)
-  (format out "~{~a~^ ~}" c))
+  (let ((cell (loop :for cell = c :then (rest cell)
+                 :for sep = "" :then " "
+                 :while (and cell (consp cell))
+                 :do (progn (format out sep)
+                            (format out "~A" (first cell)))
+                 :finally (return cell))))
+    ;; Next cell in sequence may not be a cons
+    (when cell
+      (format out " ")
+      (print-cell cell out))))
+
+(example
+ (with-output-to-string (s)
+   (print-cell '(1 2) s))
+ => "1 2")
 
 (defmethod print-cell ((c array) out)
-  (format out "~{~a~^ ~}" c))
+  (let ((sep ""))
+    (dotimes (i (array-total-size c))
+      (format out sep)
+      (format out "~a" (row-major-aref c i))
+      (setf sep " "))))
+
+(example
+ (with-output-to-string (s)
+   (print-cell #(1 2) s))
+ => "1 2")
+
+(example
+ (with-output-to-string (s)
+   (print-cell '(1 . #(2 3)) s))  ;; Mixed sequence
+ => "1 2 3")
 
 (defstruct lazy-cell
   "The cell representation of lazy sequences.
@@ -107,12 +135,21 @@ in a non-computed state (i.e. GENFN must be non-NIL.
 (defmethod print-cell ((c lazy-cell) out)
   (let ((cell (loop :for cell = c :then (lazy-cell-tl cell)
                  :for sep = "" :then " "
-                 :while (and cell (null (lazy-cell-genfn cell)))
+                 :while (and cell (lazy-cell-p cell) (null (lazy-cell-genfn cell)))
                  :do (progn (format out sep)
                             (format out "~A" (lazy-cell-hd cell)))
                  :finally (return cell))))
-    (if (and cell (lazy-cell-genfn cell))
-        (format out "..."))))
+    ;; Handle remainder of sequence
+    ;; either not a lazy cell, or unevaluated cells
+    (if cell
+        (cond
+          ((not (lazy-cell-p cell))
+           (format out " ")
+           (print-cell cell out))
+          
+          ((and (lazy-cell-p cell) (lazy-cell-genfn cell))
+           (format out "..."))))))
+
 
 (defmethod print-object ((c lazy-cell) out)
   (format out "#<lazy:") (print-cell c out) (format out ">"))
@@ -123,7 +160,7 @@ in a non-computed state (i.e. GENFN must be non-NIL.
 The EXPR should construct a sequence with a computed
  value as head, and a (possibly lazy) sequence as tail.
 
-An exemple of usage is as follows:
+An example of usage is as follows:
 
 (defun nats (n)
   (lazy-seq (cons n (nats (1+ n)))))
