@@ -11,7 +11,7 @@
 
 (defmacro lazy-list (&rest items)
   "Construct a lazy sequence from given ITEMS.
-   These will be evaluated lazily."
+These will be evaluated lazily."
   (let ((inner nil))
     (dolist (it (reverse items))
       (setf inner `(lazy-seq (cons ,it ,inner))))
@@ -32,9 +32,8 @@
 
 (defmacro lazy-list* (&rest items)
   "Construct a lazy sequence from given ITEMS.
-   These will be evaluated lazily. 
-   The last element of ITEMS is expected to be a
-   lazy sequence or list."
+These will be evaluated lazily. 
+The last element of ITEMS is expected to be a lazy sequence or list."
   (let* ((items-rev (reverse items))
          (inner (first items-rev)))
     (dolist (it (rest items-rev))
@@ -77,14 +76,14 @@
 
 (defmacro self-ref (sym items)
   "Binds a symbol SYM to refer to the lazy sequence or list ITEMS.
-   SYM is bound to a lazy-ref-cell in the evaluation of ITEMS
-   so can be used to create self-referential lazy lists
+SYM is bound to a lazy-ref-cell in the evaluation of ITEMS
+so can be used to create self-referential lazy lists
 
-   Example:  The Fibonacci sequence
+Example:  The Fibonacci sequence
 
-   (take 10
-      (self-ref fib (lazy-list* 1 1 (maps #'+ fib (tail fib)))))
-   => '(1 1 2 3 5 8 13 21 34 55))
+(take 10
+  (self-ref fib (lazy-list* 1 1 (maps #'+ fib (tail fib)))))
+ => '(1 1 2 3 5 8 13 21 34 55))
 
   "
   `(let ((,sym (make-lazy-ref-cell)))
@@ -99,17 +98,17 @@
  => '(1 1 2 3 5 8 13 21 34 55))
 
 (defmacro alazy-list (&rest items)
-  "Anamorphic macro which creates a lazy list consisting
+  "Anaphoric macro which creates a lazy list consisting
    of the given ITEMS, which will be evaluated lazily.
 
    The symbol SELF is bound to the start of the sequence, so can be
    used to define self-referential lazy sequences.
   "
-  (let ((self (intern (symbol-name 'self))))
-    `(self-ref ,self (lazy-list ,@items)))
+  (let ((self (intern (symbol-name 'self)))) ; intern so that SELF does not need to be exported
+    `(self-ref ,self (lazy-list ,@items))))
 
 (defmacro alazy-list* (&rest items)
-  "Anamorphic macro which creates a lazy list consisting
+  "Anaphoric macro which creates a lazy list consisting
    of the given ITEMS, which will be evaluated lazily. 
    The final item in ITEMS is expected to be a list or lazy sequence.
 
@@ -121,7 +120,7 @@
    (take 10 (alazy-list* 1 (maps #'1+ self)))
    => '(1 2 3 4 5 6 7 8 9 10))
   "
-  (let ((self (intern (symbol-name 'self))))
+  (let ((self (intern (symbol-name 'self)))) ; intern so that SELF does not need to be exported
     `(self-ref ,self (lazy-list* ,@items))))
 
 (example

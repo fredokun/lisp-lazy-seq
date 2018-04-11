@@ -7,16 +7,64 @@
 (defmethod head ((c list))
   (first c))
 
+(defmethod head ((c array))
+  (row-major-aref c 0))
+
+(example
+ (head '(:a :b :c))
+ => :a)
+
+(example
+ (head "hello")
+ => #\h)
+
+(example
+ (head #(1 2 3))
+ => 1)
+
+(example
+ (head #2A((4 3) (2 1)))
+ => 4)
+
 (defgeneric tail (sequence)
   (:documentation "Taking the tail of SEQUENCE."))
 
 (defmethod tail ((c list))
   (rest c))
 
+(defmethod tail ((c array))
+  "Return a flattened array, displaced to C. 
+This avoids copying data."
+  (multiple-value-bind (displace-to displace-index) (array-displacement c)
+    (make-array (1- (array-total-size c))
+                ;; Avoid multiple levels of displacement
+                ;; by displacing to the same array as C if C is displaced
+                :displaced-to (or displace-to c)
+                :displaced-index-offset (if displace-to
+                                            (1+ displace-index)
+                                            1)
+                :element-type (array-element-type c))))
+
+(example
+ (tail "hello")
+ => "ello")
+
+(example
+ (array-displacement (tail (tail "hello")))
+ => (values "hello" 2)) ; Displaced to original array
+
+(let ((*example-equal-predicate* #'equalp))
+  (example
+   (tail #2A((4 3) (2 1)))
+   => #(3 2 1))) ; note array flattened, displaced
+
 (defgeneric print-cell (c out)
   (:documentation "Priting cell C to OUT."))
 
 (defmethod print-cell ((c list) out)
+  (format out "~{~a~^ ~}" c))
+
+(defmethod print-cell ((c array) out)
   (format out "~{~a~^ ~}" c))
 
 (defstruct lazy-cell
@@ -115,6 +163,15 @@ satisfying the predicate PRED."
 (example
  (take-while (lambda (x) (< x 10)) (nats 1))
  => '(1 2 3 4 5 6 7 8 9))
+
+(defun take-all (s)
+  "Returns the list of all elements of the sequence S.
+
+CAUTION: This will never return if given an infinite sequence."
+  (loop
+     for cell = s then (tail cell)
+     when (not cell) do (return result)
+     collecting (head cell) into result))
 
 
 (defun drop (n s)

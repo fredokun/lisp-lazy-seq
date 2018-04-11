@@ -55,7 +55,7 @@ CAUTION: This may never return if applied to an infinite sequence"
 
 (defun all (f s)
   "Returns T if unary function F returns true for all of sequence S.
-CAUTION: This will never return if applied to an infinite sequence"
+CAUTION: This may never return if applied to an infinite sequence"
   (if s
       (loop
          for cell = s then (tail cell)
