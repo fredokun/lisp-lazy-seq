@@ -13,15 +13,14 @@ lambda closure. This is essentially the method used in Scheme streams.
 See the manual in [notebook](lisp-lazy-seq.ipynb) or
 [pdf](lisp-lazy-seq.pdf) form for details of the internals. 
 
-Functions for creating sequences include `cycle`, `iterate`, `repeat`, 
-`repeatedly`, `range` and `lazy-sort`. 
+Functions for creating sequences include `lazy-seq`, `lazy-list`,
+`cycle`, `iterate`, `repeat`, `repeatedly`, `range` and `lazy-sort`. 
 
 Functions for operating on lazy sequences include `maps`, `filters`,
-`reduces`, `reductions`, `any`, `all`, `lazy-cat`
-(concatenation), `drop` and `drop-while`.
+`reductions`, `lazy-cat`.
 
-Functions to force evaluation of sequences include `take`, `take-while`, 
-`take-all` and `flush-seq`.
+Functions which evaluate lazy sequences include `seq-elt`, `take`, `take-while`, 
+`take-all`, `drop`, `drop-while`, `flush-seq`, `reduces`, `any` and `all`.
 
 ## Getting it
 
@@ -67,7 +66,7 @@ use a recursive list
 (alazy-list* 1 (maps #'1+ self))
 ```
 
-or more efficiently use an object representing a range:
+or, more efficiently, use an object representing a range:
 
 ```lisp
 (range 1)
@@ -103,10 +102,36 @@ Mutually recursive sequences can also be defined
  => '(1 3 5 7))
 ```
 
+Prime numbers can be generated using the [Sieve of Eratosthenes](https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes):
+
+```lisp
+(defun sieve (s)
+  (cons (head s)
+        (lazy-seq (sieve (filters (lambda (n) (not (= 0 (mod n (head s)))))
+                                  (tail s))))))
+                                  
+(take 10 (sieve (iterate #'1+ 2)))
+=> (2 3 5 7 11 13 17 19 23 29)
+```
+
+or a more efficient alternative which shouldn't exhaust the stack:
+
+```lisp
+(defparameter primes
+  (alazy-list* 2 3 5 (filters (lambda (n)
+                                (all (lambda (d) (not (zerop (mod n d))))
+                                     (take-while (lambda (x) (< x (sqrt (1+ n))))
+                                                 self)))
+                              (range 7 nil 2))))
+
+(seq-elt primes 1000000)
+=> 15485863
+```
+
 ### Lazy sorting
 
 If only part of a sequence needs to be fully sorted, for example
-the highest 10 values from a list of 1000, then lazy sorting can
+the highest 5 values from a list of 1000, then lazy sorting can
 be significantly faster than sorting the entire list.
 
 ```lisp
