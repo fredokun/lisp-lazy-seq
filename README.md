@@ -120,7 +120,7 @@ or a more efficient alternative which shouldn't exhaust the stack:
 (defparameter primes
   (alazy-list* 2 3 5 (filters (lambda (n)
                                 (all (lambda (d) (not (zerop (mod n d))))
-                                     (take-while (lambda (x) (< x (sqrt (1+ n))))
+                                     (take-while (lambda (x) (<= (* x x) n))
                                                  self)))
                               (range 7 nil 2))))
 
@@ -147,7 +147,8 @@ be significantly faster than sorting the entire list.
 (take 5 sorted-nums)
 => (9.998831 9.997225 9.989832 9.987843 9.98232)
 
-;; The start of sorted-nums is now fully sorted
+;; The start of sorted-nums is now fully sorted but most is only
+;; partly sorted i.e. known to be <= 9.961885
 sorted-nums
 => #<lazy:9.998831 9.997225 9.989832 9.987843 9.98232 9.961885 ...>
 ```
