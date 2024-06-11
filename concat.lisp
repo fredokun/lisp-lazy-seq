@@ -40,10 +40,21 @@ The LEFT slot is the first sequence of the concat, and RIGHT is
  by S2 and then every sequences in RS, if any."
   `(make-cat-cell :left ,s1 :right (cons ,s2 ,rs)))
 
+(example
+ (take 4 (lazy-cat (lazy-list 1 2 3) (lazy-list 4 5 6)))
+ => '(1 2 3 4))
 
+(example
+ (take 10 (lazy-cat (lazy-list 1 2 3) (iterate #'1+ 4)))
+ => '(1 2 3 4 5 6 7 8 9 10))
 
 (defun cycle (s)
   "Produces a lazy infinite sequence consisting
 in the repetition of the elements of sequence S."
   (lazy-cat s (lazy-seq (cycle s))))
+
+(example
+ (take 10 (cycle (lazy-list 1 2 3)))
+ => '(1 2 3 1 2 3 1 2 3 1))
+
 
