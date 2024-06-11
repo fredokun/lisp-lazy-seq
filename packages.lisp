@@ -22,7 +22,9 @@
   (:export
    #:head
    #:tail
+   #:emptyp
    #:print-cell
+   #:lazy-cons
    #:lazy-seq
    #:take
    #:take-while

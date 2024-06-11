@@ -12,11 +12,11 @@
                (:file "utils")
                (:file "lazyseq")
                (:file "chunked")
-               (:file "concat")
                (:file "produce")
                (:file "xform")
                (:file "reduce")
                (:file "lazylist")
+               (:file "concat")
                (:file "lazysort")
                ))
 

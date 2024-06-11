@@ -1,7 +1,6 @@
 
 (in-package #:lazyseq)
 
-
 (defstruct cat-cell
   "The representation of a cell for a (lazy) concatenating sequences.
 
@@ -47,6 +46,12 @@ The LEFT slot is the first sequence of the concat, and RIGHT is
 (example
  (take 10 (lazy-cat (lazy-list 1 2 3) (iterate #'1+ 4)))
  => '(1 2 3 4 5 6 7 8 9 10))
+
+(example
+ ;; of course it's stupid ... but it should work
+ (take 10 (lazy-cat (iterate #'1+ 1) (lazy-list 1 2 3)))
+ => '(1 2 3 4 5 6 7 8 9 10))
+
 
 (defun cycle (s)
   "Produces a lazy infinite sequence consisting
