@@ -24,6 +24,10 @@ The LEFT slot is the first sequence of the concat, and RIGHT is
              (t nil)))
      nil))
 
+(defmethod emptyp ((c cat-cell))
+  (and (emptyp (cat-cell-left c))
+       (emptyp (cat-cell-right c))))
+
 (defmethod print-cell ((c cat-cell) out)
   (print-cell (cat-cell-left c) out)
   (when (cat-cell-right c)
