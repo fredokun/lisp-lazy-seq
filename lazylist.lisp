@@ -65,6 +65,9 @@ The last element of ITEMS is expected to be a lazy sequence or list."
 (defmethod tail ((c lazy-ref-cell))
   (tail (lazy-ref-cell-target c)))
 
+(defmethod emptyp ((c lazy-ref-cell))
+  (emptyp (lazy-ref-cell-target c)))
+
 (defmethod print-cell ((c lazy-ref-cell) out)
   (print-cell (lazy-ref-cell-target c) out))
 
