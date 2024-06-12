@@ -56,7 +56,6 @@ The LEFT slot is the first sequence of the concat, and RIGHT is
  (take 10 (lazy-cat (iterate #'1+ 1) (lazy-list 1 2 3)))
  => '(1 2 3 4 5 6 7 8 9 10))
 
-
 (defun cycle (s)
   "Produces a lazy infinite sequence consisting
 in the repetition of the elements of sequence S."
@@ -67,3 +66,13 @@ in the repetition of the elements of sequence S."
  => '(1 2 3 1 2 3 1 2 3 1))
 
 
+(defun lazy-catmap (f s)
+  "Apply function `F : a -> Seq[b]` on each element of `S : Seq[a]`.
+  The resulting sequences are lazily concatenated (using `LAZY-CAT`)."
+  (if (emptyp s)
+      nil
+      (lazy-cat (lazy-seq (funcall f (head s))) (lazy-catmap f (tail s)))))
+
+(example
+ (take 10 (lazy-catmap (lambda (x) (lazy-list x (* x 10)))
+		       (lazy-list 1 2 3)))

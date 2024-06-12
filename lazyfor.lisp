@@ -9,15 +9,22 @@
 
 (in-package #:lazyseq)
 
-(defun lazy-catmap (f ll)
-  (if (emptyp ll)
-      nil
-      (lazy-cat (lazy-seq (funcall f (head ll))) (lazy-catmap f (tail ll)))))
+;; Seq[a] * (a -> Seq[b]) -> Seq[b]
+(defun lazy-bind (s f)
+  "The monadic bind operator for lazy sequences, here apply `F` on `S`."
+  (lazy-catmap f s))
+
+;; a -> Seq[a]
+(defun lazy-pure (x)
+  "The monadic pure operator, a sequence containing only `S`."
+  (list x))
 
 (example
- (take 10 (lazy-catmap (lambda (x) (lazy-list x (* x 10)))
-		       (lazy-list 1 2 3)))
+ (take 10 (lazy-bind '(1 2 3 4 5)
+		     (lambda (x) (lazy-pure (* x x)))))
+ => '(1 4 9 16 25))
 
 
 
+ 
 
