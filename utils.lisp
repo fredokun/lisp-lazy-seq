@@ -1,29 +1,32 @@
 
 (in-package #:fredokun-utilities)
 
-#|
+#||
 
 # CommonTypes: Utilities #
 
-|#
+This file should not be modified directly, but copied verbatim
+from: https://gitlab.com/fredokun/cl-utils
+(and modified there, in case)
+
+**Copyright** © 2023 Frederic Peschanski under the MIT License
+
+||#
 
 ;; To activate the inline examples
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defparameter *example-enabled* t) ;; nil in production / t for self-testing
 
-  (defparameter *example-equal-predicate* #'equal)
+  (defparameter *example-equal-predicate* #'equalp)
 
   (defparameter *example-with-echo* nil)
   
   )
 
-
 (defmacro example (expr arrow expected &key (warn-only nil))
   "Show an evaluation example, useful for documentation and lightweight testing.
-
    (example `EXPR` => `EXPECTED`) evaluates `EXPR` and compare, wrt. `EQUIV`
  (EQUAL by default) to `EXPECTED` and raise an error if inequal.
-
   Set `WARN-ONLY` to T for warning instead of error.
 "
   (if (not *example-enabled*)
@@ -54,6 +57,14 @@
                  (funcall ,err-fun-var "Failed example:~%  Expression: ~S~%  ==> expected: ~A~%  ==> evaluated: ~A~%"
                           ,expr-str ,expected-var ,result-var)))))))
 
+(defmacro examples (&rest exs)
+  (when (not (zerop (mod (length exs) 3)))
+    (error "Examples should be triples: (test-form ...) => <expected-value>"))
+  (when (not *example-enabled*)
+    (values))
+  `(progn ,@(loop for i from 0 to (1- (length exs)) by 3
+		  collect `(example ,@(subseq exs i (+ i 3))))))
+
 
 (defmacro example-progn (&body body)
   "The toplevel forms of BODY are evaluated only if examples are enabled"
@@ -61,17 +72,9 @@
       `(progn ,@body)
       (values)))
 
-(defmacro logg (level fmt &rest args)
-  "Log the passed ARGS using the format string FMT and its
- arguments ARGS."
-  (if (or (not *log-enabled*)
-          (< level *log-level*))
-      (values);; disabled
-      ;; when enabled
-      `(progn (format ,*log-out-stream* "[LOG]:")
-              (format ,*log-out-stream* ,fmt ,@args)
-              (format ,*log-out-stream* "~%"))))
-  
+(defmacro comment (&body body)
+  nil)
+
 (defmacro vbinds (binders expr &body body)
   "An abbreviation for MULTIPLE-VALUE-BIND."
   (labels ((replace-underscores (bs &optional (result nil) (fresh-vars nil) (replaced nil))
@@ -138,3 +141,112 @@
     (let ((str (make-array (file-length stream) :element-type 'character :fill-pointer t)))
       (setf (fill-pointer str) (read-sequence str stream))
       str)))
+
+(defmacro comment (&rest args)
+  (declare (ignore args))
+  nil)
+
+(defun mk-float-vector (contents)
+  (map 'vector #'float contents))
+
+;; from: https://github.com/Shirakumo/trial/blob/a77e7a63ab5b8acdb6939d4c3aef9671d5adcc18/toolkit.lisp#L81
+;; License: Zlib
+(define-symbol-macro current-time-start
+    (load-time-value (logand (sb-ext:get-time-of-day) (1- (expt 2 32)))))
+
+(declaim (inline current-time))
+(defun current-time ()
+  (declare (optimize speed (safety 0)))
+  #+sbcl (multiple-value-bind (s ms) (sb-ext:get-time-of-day)
+           (let* ((s (logand s (1- (expt 2 62))))
+                  (ms (logand ms (1- (expt 2 62)))))
+             (declare (type (unsigned-byte 62) s ms))
+             (+ (- s current-time-start)
+                (* ms
+                   (coerce 1/1000000 'double-float)))))
+  #-sbcl (* (get-internal-real-time)
+            (coerce (/ internal-time-units-per-second) 'double-float)))
+
+
+(defun make-dynarray (&key (contents nil contents-p) (init-size (if contents-p
+								    (length contents)
+								    0) init-size-p))
+  (if contents-p
+      (make-array init-size :initial-contents contents :fill-pointer init-size :adjustable t)
+      (make-array init-size :fill-pointer 0 :adjustable t)))
+
+(declaim (inline dynarray-push))
+(defun dynarray-push (arr val)
+  (vector-push-extend val arr))
+	   
+
+#||
+
+# Functional loop macro
+
+(floop ((x1 init1) (x2 init2) ... (xn initn))
+  <body>)
+
+==>
+
+(labels ((recur (x1 x2 ... xn))
+  <body>)
+  (let* ((x1 init1) (x2 init2) ... (xn initn))
+    (recur x1 x2 ... xn)))
+
+
+||#
+
+(defmacro floop (bindings &body body)
+  (when (not (listp bindings))
+    (error "floop: variable bindings should be a list"))
+  (let ((vars (mapcar #'first bindings)))
+    (when (not (every #'symbolp vars))
+      (error "floop: variables should be symbols"))
+    `(labels ((recur ,vars ,@body))
+       (let* ,bindings
+	 (recur ,@vars)))))
+
+(example
+ (floop ((lst '(1 2 3)) (count 0))
+   (if (endp lst)
+       count
+       (recur (cdr lst) (+ count (car lst)))))
+ => 6)
+
+(example
+ (floop ((x 5) (y (* x 2)) (res (list)))
+   (if (zerop x)
+       res
+       (recur (1- x) (1- y) (cons (list x y) res))))
+ => '((1 6) (2 7) (3 8) (4 9) (5 10)))
+
+
+(defun plist->alist (plst)
+  (loop :for (k v) :on plst :by #'cddr :collect (list k v)))
+
+(examples
+ (plist->alist '(k1 v1 k2 v2 k3 v3)) => '((K1 V1) (K2 V2) (K3 V3))
+ (plist->alist '(k1 v1)) => '((K1 V1))
+ (plist->alist '(k)) => '((K NIL))
+ (plist->alist '()) => '()
+)
+
+(defun alist->plist (alst)
+  (loop :for (k v) :in alst :append (list k v)))
+
+(examples
+ (alist->plist '((k1 v1) (k2 v2) (k3 v3))) => '(K1 V1 K2 V2 K3 V3)
+ (alist->plist '((k1 v1))) => '(K1 V1)
+ (alist->plist '()) => '()
+)
+
+(defun reverse-plist (plst)
+  (loop :for (val key) :on (reverse plst) :by #'cddr
+        :append (list key val)))
+
+(examples
+  (reverse-plist '(k1 v1 k2 v2 k3 v3)) => '(K3 V3 K2 V2 K1 V1)
+  (reverse-plist '(k1 v1)) => '(K1 V1)
+  (reverse-plist '()) => '()
+)

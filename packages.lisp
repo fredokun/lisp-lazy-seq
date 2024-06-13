@@ -6,6 +6,7 @@
            #:*example-equal-predicate*
            #:example
            #:example-progn
+	   #:comment
            #:*logg-enabled*
            #:*logg-level*
            #:logg
