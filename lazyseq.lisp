@@ -13,19 +13,16 @@
 (defmethod head ((c array))
   (row-major-aref c 0))
 
-(example
+(examples
  (head '(:a :b :c))
- => :a)
+ => :a
 
-(example
  (head "hello")
- => #\h)
+ => #\h
 
-(example
  (head #(1 2 3))
- => 1)
+ => 1
 
-(example
  (head #2A((4 3) (2 1)))
  => 4)
 
@@ -63,11 +60,9 @@ This avoids copying data."
  (array-displacement (tail (tail "hello")))
  => (values "hello" 2)) ; Displaced to original array
 
-(let ((*example-equal-predicate* #'equalp))
-  (example
-   (tail #2A((4 3) (2 1)))
-   => #(3 2 1))) ; note array flattened, displaced
-
+(example
+ (tail #2A((4 3) (2 1)))
+ => #(3 2 1)) ; note array flattened, displaced
 
 (defgeneric emptyp (sequence)
   (:documentation "Check if SEQUENCE is empty (T) or not (NIL)."))
@@ -124,34 +119,33 @@ in a non-computed state (i.e. GENFN must be non-NIL.
 
 "
   (let ((val (funcall (lazy-cell-genfn c))))
-    (setf (lazy-cell-hd c) (head val))
-    (setf (lazy-cell-tl c) (tail val))
-    (setf (lazy-cell-genfn c) nil)))
+    (setf (lazy-cell-genfn c) nil)
+    (progn (setf (lazy-cell-hd c) (head val))
+	   (setf (lazy-cell-tl c) (tail val)))))
 
 (defmethod head ((c lazy-cell))
   (when (lazy-cell-genfn c)
-    (compute-lazy-cell c))
+    (progn (compute-lazy-cell c)))
   (lazy-cell-hd c))
 
 (defmethod tail ((c lazy-cell))
   (when (lazy-cell-genfn c)
-    (compute-lazy-cell c))
+    (progn (compute-lazy-cell c)))
   (lazy-cell-tl c))
 
 (defmethod emptyp ((c lazy-cell))
-  (not (or (lazy-cell-hd c)
-	   (lazy-cell-tl c)
-	   (lazy-cell-genfn c))))
-
+  ;; a lazy cell is never empty
+  ;; (it generates exactly one value)
+  nil)
+	     
 (defmethod print-cell ((c lazy-cell) out)
-  (let ((cell (loop :for cell = c :then (lazy-cell-tl cell)
-                 :for sep = "" :then " "
-                 :while (and cell (null (lazy-cell-genfn cell)))
-                 :do (progn (format out sep)
-                            (format out "~A" (lazy-cell-hd cell)))
-                 :finally (return cell))))
-    (if (and cell (lazy-cell-genfn cell))
-        (format out "..."))))
+  (if (lazy-cell-genfn c)
+      (format out "...")
+      ;; already computed
+      (progn (format out "~A" (lazy-cell-hd c))
+	     (when (lazy-cell-tl c)
+	       (progn (format out ", ")
+		      (print-cell (lazy-cell-tl c) out))))))
 
 (defmethod print-object ((c lazy-cell) out)
   (format out "#<lazy:") (print-cell c out) (format out ">"))
@@ -187,7 +181,6 @@ An exemple of usage is as follows:
    (lazy-seq (cons n (nats (1+ n)))))
 
  (example (head (tail (tail (nats 1)))) => 3))
-
 
 (defun take (n s)
   "Returns the list of the N first elements of the sequence S."

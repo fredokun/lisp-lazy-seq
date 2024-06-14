@@ -5,6 +5,7 @@
   (:export #:*example-enabled*
            #:*example-equal-predicate*
            #:example
+           #:examples
            #:example-progn
 	   #:comment
            #:*logg-enabled*
