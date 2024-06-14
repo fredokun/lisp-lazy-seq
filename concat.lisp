@@ -82,12 +82,14 @@ in the repetition of the elements of sequence S."
   (if (emptyp (catmap-cell-left c))
       (if (emptyp (catmap-cell-right c))
 	  (catmap-cell-left c)
-	  (let ((nleft (funcall (catmap-cell-fun c) (head (catmap-cell-right c)))))
-	    (if (emptyp nleft)
-		nleft
-		(progn (setf (catmap-cell-left c) nleft)
-		       (setf (catmap-cell-rights c) (tail (catmap-cell-right c)))
-		       c))))
+	  (loop :for r = (catmap-cell-right c) :then (tail r)
+		:for nleft = (if (emptyp r) nil (funcall (catmap-cell-fun c) (head r)))
+		;;:do (format t "r = ~A, nleft=~A~%" r nleft)
+		:when (emptyp r) :do (return r)
+		:when (not (emptyp nleft))
+		  :do (return (progn (setf (catmap-cell-left c) nleft)
+				     (setf (catmap-cell-right c) (tail r))
+				     c))))
       ;; left is not empty, nothing to normalize
       c))
 
@@ -130,4 +132,7 @@ in the repetition of the elements of sequence S."
  (take 10 (lazy-catmap (lambda (x) (lazy-list x (* x 10)))
 		       (iterate #'1+ 1)))
  => '(1 10 2 20 3 30 4 40 5 50))
+
+
+
 

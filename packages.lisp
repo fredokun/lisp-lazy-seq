@@ -36,6 +36,7 @@
    #:seq-elt
    #:chunk-seq
    #:lazy-cat
+   #:lazy-catmap
    #:cycle
    #:iterate
    #:repeatedly
@@ -53,7 +54,7 @@
    ;; lists
    #:lazy-list
    #:lazy-list*
-   #:self-ref
+   #:lazy-rec
    #:alazy-list
    #:alazy-list*
    #:lazy-labels
@@ -66,6 +67,8 @@
    #:file-line-seq
    ;; Sorting
    #:lazy-sort
+   ;; Comprensions
+   #:lazy-for
    ))
 
 

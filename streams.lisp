@@ -15,7 +15,7 @@
                (print-cell tl out)))))
 
 (defmethod print-object ((c stream-cell) out)
-  (format out "#<steam:")
+  (format out "#<stream:")
   (print-cell c out)
   (format out ">"))
 
@@ -52,14 +52,19 @@ automagically closed when reaching the EOF."
                  c)))))
 
 (defmethod head ((c char-stream-cell))
-  (slot-value c 'hd))
+  (if (emptyp c)
+      (error "Empty sequence")
+      (slot-value c 'hd)))
 
 (defmethod tail ((c char-stream-cell))
-  (if (slot-value c 'stream)
-      (if (compute-char-stream c)
-          (slot-value c 'tl)
-          nil)
+  (if (emptyp c)
+      (error "Empty sequence")
       (slot-value c 'tl)))
+
+(defmethod emptyp ((c char-stream-cell))
+  (if (compute-char-stream c)
+      nil
+      t))
 
 (defun char-seq (in-stream &key (autoclose nil))
   "Generates a lazy sequence of characters from an INPUT-STREAM.
@@ -86,11 +91,14 @@ Use FLUSH-SEQ for forcing the close operation."
 
 (example
  (with-input-from-string (in "")
-   (char-seq in)) => '())
+   (char-seq in)) 
+ => '())
 
 (example
  (with-input-from-string (in "hello world")
-   (take 5 (char-seq in))) => '(#\h #\e #\l #\l #\o))
+   (take 5 (char-seq in)))
+ => '(#\h #\e #\l #\l #\o))
+
 
 (example
  (with-input-from-string (in "hello world")
@@ -341,10 +349,12 @@ sequence is fully computed. Use FLUSH-SEQ to force the closing operation."
  => '(10 40 105 110))
 
 
+(comment  ;; I don't remind what this was ... ( ´_ﾉ`)
+
 (defclass sequence-stream-cell (stream-cell)
   ((prefetch :initarg :prefetch :initform 32)
    (chunk :initform nil)
    (pos :initform 0))
   (:documentation "A stream cell for sequence inputs."))
 
-
+)

@@ -32,17 +32,24 @@
   (step 1))
 
 (defmethod head ((r range-state))
-  (range-state-val r))
+  (if (emptyp r)
+      (error "Empty sequence")
+      (range-state-val r)))
 
 (defmethod tail ((r range-state))
   (let ((nval (+ (range-state-val r)
 		 (range-state-step r))))
     (if (and (range-state-lim r)
-	     (>= nval (range-state-lim r)))
-	nil
+	     (> nval (range-state-lim r)))
+	(error "Empty sequence")
 	(make-range-state :val nval
 			  :lim (range-state-lim r)
 			  :step (range-state-step r)))))
+
+(defmethod emptyp ((r range-state))
+  (and (range-state-lim r)
+       (>= (range-state-val r)
+	   (range-state-lim r))))
 
 (defmethod print-cell ((r range-state) out)
   (format out "~A.." (range-state-val r))
@@ -64,4 +71,20 @@ until LIM (or an \"infinite\" range if LIM is NIL),
   (make-range-state :val start :lim lim :step step))
 
 
+(examples
+ (take 3 (range 1 5))
+ => '(1 2 3)
 
+ (take 10 (range 1 5))
+ => '(1 2 3 4)
+
+ (take 0 (range 1 5))
+ => NIL
+
+ (take 8 (range 1 nil))
+ => '(1 2 3 4 5 6 7 8)
+
+ (take 8 (range 1 nil 2))
+ => '(1 3 5 7 9 11 13 15)
+ 
+)
