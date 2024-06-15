@@ -90,6 +90,13 @@
 	   j <- '(A B)
 	   :yield (cons i j)))
  => '((1 . A) (1 . B) (2 . A) (2 . B) (3 . A) (3 . B) (4 . A) (4 . B))
+
+ (take-all (lazy-for
+	     i <- (range 1 5)
+	     j <- (range i 5)
+	     :yield (cons i j)))
+ => '((1 . 1) (1 . 2) (1 . 3) (1 . 4) (2 . 2) (2 . 3) (2 . 4) (3 . 3) (3 . 4) (4 . 4))
+
 )
 
 (examples  ;; infinite lists
