@@ -2,7 +2,7 @@
  Defines:
 
    lazy-list, lazy-list*     Create lazy sequences conveniently
-   self-ref        Self-referential lazy sequences
+   lazy-rec        Self-referential lazy sequences
    alazy-list, alazy-list*   Anamorphic macro variants for self referencing
    lazy-labels     Creates scope in which mutually recursive lazy sequences can be defined
 |#
@@ -108,7 +108,7 @@ Example:  The Fibonacci sequence
    used to define self-referential lazy sequences.
   "
   (let ((self (intern (symbol-name 'self)))) ; intern so that SELF does not need to be exported
-    `(self-ref ,self (lazy-list ,@items))))
+    `(lazy-rec ,self (lazy-list ,@items))))
 
 (defmacro alazy-list* (&rest items)
   "Anaphoric macro which creates a lazy list consisting
@@ -124,7 +124,7 @@ Example:  The Fibonacci sequence
    => '(1 2 3 4 5 6 7 8 9 10))
   "
   (let ((self (intern (symbol-name 'self)))) ; intern so that SELF does not need to be exported
-    `(self-ref ,self (lazy-list* ,@items))))
+    `(lazy-rec ,self (lazy-list* ,@items))))
 
 (examples
  (take 10 (alazy-list* 1 (maps #'1+ self)))
