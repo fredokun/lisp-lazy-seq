@@ -67,11 +67,6 @@
  => '(1 3 5 7 9 11 13 15 17 19)
 )
 
-;; a very permissive recognizer for "symbols"
-(defun is-sym (kw str)
-  (and (symbolp kw)
-       (string= (symbol-name kw) str)))
-
 (defmacro lazy-for (&body body)
   (cond 
     ((null body) (progn))

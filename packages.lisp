@@ -17,6 +17,7 @@
 	   #:read-file-lines
 	   #:read-string-file
 	   #:read-binary-file
+	   #:is-sym
 	   ))
 
 (defpackage #:lazyseq

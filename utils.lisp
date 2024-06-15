@@ -250,3 +250,9 @@ from: https://gitlab.com/fredokun/cl-utils
   (reverse-plist '(k1 v1)) => '(K1 V1)
   (reverse-plist '()) => '()
 )
+
+
+;; a very permissive recognizer for "symbols"
+(defun is-sym (kw str)
+  (and (symbolp kw)
+       (string= (symbol-name kw) str)))
