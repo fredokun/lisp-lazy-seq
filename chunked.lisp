@@ -59,6 +59,10 @@ If the chunked sequence has less elements than the chunk size then
        :pos (1+ (chunked-cell-pos c))
        :seq (chunked-cell-seq c))))
 
+(defmethod emptyp ((c chunked-cell))
+  (and (not (chunked-cell-seq c))
+       (not (chunked-cell-chunk c))))
+
 (defmethod print-cell ((c chunked-cell) out)
   (when (chunked-cell-chunk c)
     (format out "[")
@@ -86,3 +90,16 @@ This way, the consumption of SEQ will be made by whole
                       :chunk nil
                       :pos nil
                       :seq ,seq))
+
+(examples
+ (take 10 (chunk-seq '(1 2 3 4) :prefetch 2))
+ => '(1 2 3 4)
+
+ (take 10 (chunk-seq '(1 2 3 4) :prefetch 32))
+ => '(1 2 3 4)
+ 
+ (take 10 (chunk-seq (iterate #'1+ 1)))
+ => '(1 2 3 4 5 6 7 8 9 10)
+
+) 
+

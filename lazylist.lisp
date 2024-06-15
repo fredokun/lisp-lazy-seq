@@ -65,6 +65,9 @@ The last element of ITEMS is expected to be a lazy sequence or list."
 (defmethod tail ((c lazy-ref-cell))
   (tail (lazy-ref-cell-target c)))
 
+(defmethod emptyp ((c lazy-ref-cell))
+  (emptyp (lazy-ref-cell-target c)))
+
 (defmethod print-cell ((c lazy-ref-cell) out)
   (print-cell (lazy-ref-cell-target c) out))
 
@@ -74,15 +77,15 @@ The last element of ITEMS is expected to be a lazy sequence or list."
   (format out ">"))
 
 
-(defmacro self-ref (sym items)
-  "Binds a symbol SYM to refer to the lazy sequence or list ITEMS.
-SYM is bound to a lazy-ref-cell in the evaluation of ITEMS
-so can be used to create self-referential lazy lists
+(defmacro lazy-rec (sym items)
+  "Binds a symbol SYM to refer to the lazy sequence or list of ITEMS.
+SYM is bound to the current sequence in the evaluation of ITEMS
+so it can be used to create self-referential lazy lists
 
 Example:  The Fibonacci sequence
 
 (take 10
-  (self-ref fib (lazy-list* 1 1 (maps #'+ fib (tail fib)))))
+  (lazy-rec fib (lazy-list* 1 1 (maps #'+ fib (tail fib)))))
  => '(1 1 2 3 5 8 13 21 34 55))
 
   "
@@ -94,7 +97,7 @@ Example:  The Fibonacci sequence
 
 (example 
  (take 10
-       (self-ref fib (lazy-list* 1 1 (maps #'+ fib (tail fib)))))
+       (lazy-rec fib (lazy-list* 1 1 (maps #'+ fib (tail fib)))))
  => '(1 1 2 3 5 8 13 21 34 55))
 
 (defmacro alazy-list (&rest items)
@@ -123,11 +126,10 @@ Example:  The Fibonacci sequence
   (let ((self (intern (symbol-name 'self)))) ; intern so that SELF does not need to be exported
     `(self-ref ,self (lazy-list* ,@items))))
 
-(example
+(examples
  (take 10 (alazy-list* 1 (maps #'1+ self)))
- => '(1 2 3 4 5 6 7 8 9 10))
+ => '(1 2 3 4 5 6 7 8 9 10)
 
-(example 
  (take 10 (alazy-list* 1 1 (maps #'+ self (tail self))))
  => '(1 1 2 3 5 8 13 21 34 55))
 
@@ -184,4 +186,6 @@ Example:  The Fibonacci sequence
                (odds (maps #'1+ evens)))
    (take 4 odds))
  => '(1 3 5 7))
+
+
  
