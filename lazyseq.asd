@@ -5,7 +5,7 @@
   :author "Frederic Peschanski (format nil \"<frederic~Apeschanski~Awork~Agmail~Acom>\" \".\" \".\" \"@\" \".\")" 
   :license "MIT License. See LICENSE."
   :depends-on (:alexandria
-               )
+               :trivial-clock)
   :in-order-to ((test-op (load-op lazyseq-test)))
   :serial t
   :components ((:file "packages")

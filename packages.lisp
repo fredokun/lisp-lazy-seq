@@ -1,7 +1,7 @@
 
 (defpackage #:fredokun-utilities
   (:nicknames #:fredo-utils)
-  (:use #:cl)
+  (:use #:cl #:trivial-clock)
   (:export #:*example-enabled*
            #:*example-equal-predicate*
            #:example
