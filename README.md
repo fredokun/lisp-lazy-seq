@@ -46,5 +46,5 @@ More examples are available in the files:
 
 ## License
 
-Copyright (C) 2016- Frederic Peschanski under the MIT License
+Copyright (C) 2016-2026 Frederic Peschanski under the MIT License
 (cf. `LICENSE` file)
