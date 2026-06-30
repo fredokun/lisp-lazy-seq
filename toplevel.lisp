@@ -3,7 +3,7 @@
 (push (truename "./") asdf:*central-registry*)
 
 ;; for debugging / dev. time, also eval the following line
-(declaim (optimize (speed 0) (space 0) (safety 3) (debug 3))) 
+(declaim (optimize (speed 0) (space 0) (safety 3) (debug 3)))
 
 ;; tell quicklisp to load the project.
 (ql:quickload "lazyseq")
